@@ -1,5 +1,5 @@
 import contactsService from "../services/contactsServices.js";
-const { listContacts, getContactById, removeContact, addContact } = contactsService;
+const { listContacts, getContactById, removeContact, addContact, updateContact } = contactsService;
 import validateBody from "../helpers/validateBody.js";
 import { createContactSchema, updateContactSchema } from "../schemas/contactsSchemas.js";
 
@@ -48,7 +48,8 @@ export const deleteContact = async (req, res) => {
 export const createContact = async (req, res) => {
   try {
     validateBody(createContactSchema)(req, res, async () => {
-      const newContact = await addContact(req.body);
+      const { name, email, phone } = await req.body;
+      const newContact = await addContact(name, email, phone);
       res.status(201).json(newContact);
     });
   } catch (error) {
@@ -56,7 +57,7 @@ export const createContact = async (req, res) => {
   }
 };
 
-export const updateContact = async (req, res) => {
+export const changeContact = async (req, res) => {
   const { id } = req.params;
   const { body } = req;
 
@@ -78,3 +79,4 @@ export const updateContact = async (req, res) => {
     res.status(500).json({ "message": "Internal server error" });
   }
 }
+
