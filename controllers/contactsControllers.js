@@ -71,6 +71,10 @@ export const changeContact = async (req, res) => {
       return res.status(400).json({ "message": "Body must have at least one field" });
     }
 
+    if (res.headersSent) {
+      return;
+    }
+
     validateBody(updateContactSchema)(req, res, async () => {
       const updatedContact = await updateContact(id, body);
       res.status(200).json(updatedContact);
