@@ -67,7 +67,7 @@ export const changeContact = async (req, res) => {
       return res.status(404).json({ "message": "Not found" });
     }
 
-    if (Object.keys(body).length === 0) {
+    if (!body || Object.keys(body).length === 0) {
       return res.status(400).json({ "message": "Body must have at least one field" });
     }
 
@@ -83,4 +83,5 @@ export const changeContact = async (req, res) => {
     res.status(500).json({ "message": "Internal server error" });
   }
 }
+
 
