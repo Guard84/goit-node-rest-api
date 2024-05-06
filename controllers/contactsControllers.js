@@ -64,24 +64,22 @@ export const changeContact = async (req, res) => {
   try {
     const existingContact = await getContactById(id);
     if (!existingContact) {
-      return res.status(404).json({ "message": "Not found" });
+      return res.status(404).json({ message: "Not found" });
     }
 
     if (!body || Object.keys(body).length === 0) {
-      return res.status(400).json({ "message": "Body must have at least one field" });
-    }
-
-    if (res.headersSent) {
-      return;
+      return res
+        .status(400)
+        .json({ message: "Body must have at least one field" });
     }
 
     validateBody(updateContactSchema)(req, res, async () => {
       const updatedContact = await updateContact(id, body);
-      res.status(200).json(updatedContact);
+      return res.status(200).json(updatedContact);
     });
   } catch (error) {
-    res.status(500).json({ "message": "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
 
