@@ -47,11 +47,10 @@ export const deleteContact = async (req, res) => {
 
 export const createContact = async (req, res) => {
   try {
-    validateBody(createContactSchema)(req, res, async () => {
       const { name, email, phone } = await req.body;
       const newContact = await addContact(name, email, phone);
       res.status(201).json(newContact);
-    });
+    
   } catch (error) {
     res.status(500).json({ "message": "Internal server error" });
   }
@@ -72,11 +71,9 @@ export const changeContact = async (req, res) => {
         .status(400)
         .json({ message: "Body must have at least one field" });
     }
-
-    validateBody(updateContactSchema)(req, res, async () => {
       const updatedContact = await updateContact(id, body);
       return res.status(200).json(updatedContact);
-    });
+   
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
