@@ -1,7 +1,5 @@
 import contactsService from "../services/contactsServices.js";
 const { listContacts, getContactById, removeContact, addContact, updateContact } = contactsService;
-import validateBody from "../helpers/validateBody.js";
-import { createContactSchema, updateContactSchema } from "../schemas/contactsSchemas.js";
 
 
 export const getAllContacts = async (req, res) => {
