@@ -1,80 +1,111 @@
-import contactsService from "../services/contactsServices.js";
-const { listContacts, getContactById, removeContact, addContact, updateContact } = contactsService;
+import Contact from "../models/contact.js";
 
-
-export const getAllContacts = async (req, res) => {
+const getAllContacts = async (req, res, next) => {
   try {
-    const contacts = await listContacts();
-    res.status(200).json(contacts);
+    const contacts = await Contact.find();
+    res.status(200).send(contacts);
   } catch (error) {
-    res.status(500).json({ "message": "Internal server error" });
+    next(error);
   }
-  
 };
 
-export const getOneContact = async (req, res) => {
+const getOneContact = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const contact = await getContactById(id);
-    if (contact) {
-      res.status(200).json(contact);
+    const contact = await Contact.findById(id);
+    if (contact === null) {
+      res.status(404).send({ message: "Not found" });
     } else {
-      res.status(404).json({ "message": "Not found" });
+      res.status(200).send(contact);
     }
   } catch (error) {
-    res.status(500).json({ "message": "Internal server error" });
+    next(error);
   }
 };
 
-export const deleteContact = async (req, res) => {
+const deleteContact = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const deletedContact = await removeContact(id)
+    const deletedContact = await Contact.findByIdAndDelete(id);
 
-    if (deletedContact) {
-      res.status(200).json(deletedContact);
+    if (deletedContact === null) {
+      res.status(404).send({ message: "Not found" });
     } else {
-      res.status(404).json({ "message": "Not found" });
+      res.status(200).send(deletedContact);
     }
   } catch (error) {
-     res.status(500).json({ "message": "Internal server error" });
+    next(error);
   }
 };
 
-export const createContact = async (req, res) => {
+const createContact = async (req, res, next) => {
   try {
-      const { name, email, phone } = await req.body;
-      const newContact = await addContact(name, email, phone);
-      res.status(201).json(newContact);
-    
+    const contact = {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+    };
+
+    const newContact = await Contact.create(contact);
+    res.status(201).send(newContact);
   } catch (error) {
-    res.status(500).json({ "message": "Internal server error" });
+    next(error);
   }
 };
 
-export const changeContact = async (req, res) => {
+const changeContact = async (req, res, next) => {
   const { id } = req.params;
-  const { body } = req;
+  const body = req.body;
 
   try {
-    const existingContact = await getContactById(id);
-    if (!existingContact) {
-      return res.status(404).json({ message: "Not found" });
-    }
-
-    if (!body || Object.keys(body).length === 0) {
+    if (!body.name && !body.email && !body.phone) {
       return res
         .status(400)
-        .json({ message: "Body must have at least one field" });
+        .send({ message: "Body must have at least one field" });
     }
-      const updatedContact = await updateContact(id, body);
-      return res.status(200).json(updatedContact);
-   
+
+    const updatedContact = await Contact.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+
+    if (updatedContact === null) {
+      return res.status(404).send({ message: "Contact not found" });
+    } else {
+      res.status(200).send(updatedContact);
+    }
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
 
+const updateStatusContact = async (req, res, next) => {
+  const { contactId } = req.params;
+  const { favorite } = req.body;
 
+  try {
+    const updatedContact = await Contact.findByIdAndUpdate(
+      contactId,
+      { favorite },
+      { new: true }
+    );
+
+    if (updatedContact === null) {
+      return res.status(404).send({ message: "Not found" });
+    } else {
+      res.status(200).send(updatedContact);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default {
+  getAllContacts,
+  getOneContact,
+  deleteContact,
+  createContact,
+  changeContact,
+  updateStatusContact,
+};
