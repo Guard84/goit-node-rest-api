@@ -2,7 +2,7 @@ import Contact from "../models/contact.js";
 
 const getAllContacts = async (req, res, next) => {
   try {
-    const contacts = await Contact.find();
+    const contacts = await Contact.find({ owner: req.user.id });
     res.status(200).send(contacts);
   } catch (error) {
     next(error);
@@ -13,12 +13,11 @@ const getOneContact = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const contact = await Contact.findById(id);
+    const contact = await Contact.findOne({ _id: id, owner: req.user.id });
     if (contact === null) {
       res.status(404).send({ message: "Not found" });
-    } else {
-      res.status(200).send(contact);
     }
+    res.status(200).send(contact);
   } catch (error) {
     next(error);
   }
@@ -28,7 +27,10 @@ const deleteContact = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const deletedContact = await Contact.findByIdAndDelete(id);
+    const deletedContact = await Contact.findOneAndDelete({
+      _id: id,
+      owner: req.user.id,
+    });
 
     if (deletedContact === null) {
       res.status(404).send({ message: "Not found" });
@@ -46,6 +48,7 @@ const createContact = async (req, res, next) => {
       name: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
+      owner: req.user.id,
     };
 
     const newContact = await Contact.create(contact);
@@ -66,9 +69,11 @@ const changeContact = async (req, res, next) => {
         .send({ message: "Body must have at least one field" });
     }
 
-    const updatedContact = await Contact.findByIdAndUpdate(id, body, {
-      new: true,
-    });
+    const updatedContact = await Contact.findOneAndUpdate(
+      { _id: id, owner: req.user.id },
+      body,
+      { new: true }
+    );
 
     if (updatedContact === null) {
       return res.status(404).send({ message: "Contact not found" });
@@ -85,8 +90,8 @@ const updateStatusContact = async (req, res, next) => {
   const { favorite } = req.body;
 
   try {
-    const updatedContact = await Contact.findByIdAndUpdate(
-      contactId,
+    const updatedContact = await Contact.findOneAndUpdate(
+      { _id: contactId, owner: req.user.id },
       { favorite },
       { new: true }
     );
