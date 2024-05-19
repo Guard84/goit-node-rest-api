@@ -29,4 +29,11 @@ usersRouter.get(
   UsersControllers.currentUser
 );
 
+usersRouter.patch(
+  "/",
+  authMiddleware.auth,
+  UsersControllers.updateSubscription
+);
+
+
 export default usersRouter;

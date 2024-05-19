@@ -81,7 +81,7 @@ const currentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
 
-    if (!user) {
+    if (user === null) {
       return res.status(401).send({ message: "Not authorized" });
     }
 
@@ -94,9 +94,38 @@ const currentUser = async (req, res, next) => {
   }
 };
 
+const updateSubscription = async (req, res, next) => {
+  const { subscription } = req.body;
+
+  if (!["starter", "pro", "business"].includes(subscription)) {
+    return res.status(400).send({ message: "Invalid subscription type" });
+  }
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { subscription },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(401).send({ message: "Not authorized" });
+    }
+
+    res.status(200).send({
+      email: updatedUser.email,
+      subscription: updatedUser.subscription,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 export default {
   register,
   login,
   logout,
   currentUser,
+  updateSubscription,
 };

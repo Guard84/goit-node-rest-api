@@ -1,8 +1,16 @@
 import Contact from "../models/contact.js";
 
 const getAllContacts = async (req, res, next) => {
+  const { page = 1, limit = 20, favorite } = req.query;
+  const skip = (page - 1) * limit;
+  const filter = { owner: req.user.id };
+
+  if (favorite !== undefined) {
+    filter.favorite = favorite === "true";
+  }
+
   try {
-    const contacts = await Contact.find({ owner: req.user.id });
+    const contacts = await Contact.find(filter).skip(skip).limit(Number(limit));
     res.status(200).send(contacts);
   } catch (error) {
     next(error);
