@@ -25,12 +25,14 @@ usersRouter.post("/logout", jsonParser, authMiddleware.auth, UsersControllers.lo
 
 usersRouter.get(
   "/current",
+  jsonParser,
   authMiddleware.auth,
   UsersControllers.currentUser
 );
 
 usersRouter.patch(
   "/",
+  jsonParser,
   authMiddleware.auth,
   UsersControllers.updateSubscription
 );
