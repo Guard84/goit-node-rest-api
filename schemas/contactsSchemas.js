@@ -12,13 +12,3 @@ export const updateContactSchema = Joi.object({
   phone: Joi.string().min(5),
 });
 
-
-
-// export const validateId = (req, res, next) => {
-//   const idSchema = Joi.string().min(24).required();
-//   const { error } = idSchema.validate(req.params.id);
-//   if (error) {
-//     return res.status(400).json({ message: "Invalid id" });
-//   }
-//   next();
-// };
