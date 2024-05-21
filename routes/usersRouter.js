@@ -45,7 +45,7 @@ usersRouter.patch(
 
 usersRouter.patch(
   "/avatars",
-  uploadMiddleware.single("Avatar"),
+  uploadMiddleware.single("avatar"),
   authMiddleware.auth,
   UsersControllers.uploadAvatar
 );
