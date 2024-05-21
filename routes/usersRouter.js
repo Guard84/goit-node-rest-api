@@ -47,7 +47,7 @@ usersRouter.patch(
   "/avatars",
   uploadMiddleware.single("Avatar"),
   authMiddleware.auth,
-  UsersControllers.updateAvatar
+  UsersControllers.uploadAvatar
 );
 
 export default usersRouter;

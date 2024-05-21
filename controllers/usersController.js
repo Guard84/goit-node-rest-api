@@ -2,6 +2,9 @@ import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
+import jimp from "jimp";
+import * as fs from "node:fs/promises";
+import path from "node:path";
 
 const register = async (req, res, next) => {
   const { email, password } = req.body;
@@ -19,14 +22,14 @@ const register = async (req, res, next) => {
     const result = await User.create({
       email: emailInLowerCase,
       password: passwordHash,
-      avatarURL
+      avatarURL,
     });
 
     res.status(201).send({
       user: {
         email: result.email,
         subscription: result.subscription,
-        avatarURL: result.avatarURL
+        avatarURL: result.avatarURL,
       },
     });
   } catch (error) {
@@ -126,8 +129,27 @@ const updateSubscription = async (req, res, next) => {
   }
 };
 
-const updateAvatar = async (req, res, next) => {
-  res.send("Avatar update");
+const uploadAvatar = async (req, res, next) => {
+  try {
+    const image = await jimp.read(req.file.path);
+    image.resize(250, 250);
+    await image.writeAsync(req.file.path);
+
+    await fs.rename(
+      req.file.path,
+      path.resolve("public/avatars", req.file.filename)
+    );
+
+    const userAvatar = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatarURL: `/avatars/${req.file.filename}` },
+      { new: true }
+    );
+
+    res.send(userAvatar);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export default {
@@ -136,5 +158,5 @@ export default {
   logout,
   currentUser,
   updateSubscription,
-  updateAvatar,
+  uploadAvatar,
 };
