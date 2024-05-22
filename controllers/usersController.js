@@ -130,23 +130,27 @@ const updateSubscription = async (req, res, next) => {
 };
 
 const uploadAvatar = async (req, res, next) => {
+  if (!req.file) {
+    return res.status(400).send({ message: "Choose file" });
+  }
   try {
     const image = await jimp.read(req.file.path);
     image.resize(250, 250);
     await image.writeAsync(req.file.path);
 
-    await fs.rename(
-      req.file.path,
-      path.resolve("public/avatars", req.file.filename)
-    );
+    const avatarFilename = `${req.user.id}-${req.file.filename}`;
+    const avatarPath = path.resolve("public/avatars", avatarFilename);
 
+    await fs.rename(req.file.path, avatarPath);
+
+    const avatarURL = `/avatars/${avatarFilename}`;
     const userAvatar = await User.findByIdAndUpdate(
       req.user.id,
-      { avatarURL: `/avatars/${req.file.filename}` },
+      { avatarURL },
       { new: true }
     );
 
-    res.send(userAvatar);
+    res.status(200).send({ avatarURL: userAvatar.avatarURL });
   } catch (error) {
     next(error);
   }
