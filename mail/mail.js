@@ -11,14 +11,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const message = {
-  from: "tankian84@meta.ua",
-  to: "guardsofword@gmail.com",
-  subject: "Nodemailer test",
-  text: "Привіт. Я тестую надсилання листів!",
+
+function sendMail(message) {
+    return transporter.sendMail(message)
 };
 
-transporter
-  .sendMail(message)
-  .then((info) => console.log(info))
-  .catch((err) => console.log(err));
+export default { sendMail };

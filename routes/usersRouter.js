@@ -1,7 +1,10 @@
 import express from "express";
 import validateBody from "../helpers/validateBody.js";
 import UsersControllers from "../controllers/usersController.js";
-import { registerSchema, loginSchema } from "../schemas/userSchemas.js";
+import {
+  registerSchema,
+  loginSchema,
+} from "../schemas/userSchemas.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
 import uploadMiddleware from "../middlewares/upload.js";
 
@@ -49,5 +52,8 @@ usersRouter.patch(
   authMiddleware.auth,
   UsersControllers.uploadAvatar
 );
+
+usersRouter.get("/verify/:verificationToken", jsonParser, UsersControllers.verifyUser);
+usersRouter.post("/verify", jsonParser, UsersControllers.reVerify);
 
 export default usersRouter;
